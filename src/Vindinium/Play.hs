@@ -7,7 +7,7 @@ module Vindinium.Play
 import Vindinium.Types
 import Vindinium.Api
 
-playTraining :: Maybe Int -> Maybe Board -> Bot -> Vindinium State
+playTraining :: Maybe Int -> Maybe String -> Bot -> Vindinium State
 playTraining mt mb b = startTraining mt mb >>= playLoop b
 
 playArena :: Bot -> Vindinium State

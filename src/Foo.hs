@@ -9,6 +9,8 @@ import Data.Array (Array, listArray, (!), bounds, elems)
 import Data.Ix (inRange)
 import Control.Monad.ST
 
+type TileGrid = Array (Int,Int) Tile
+
 isMine :: Tile -> Bool
 isMine (MineTile _) = True
 isMine _ = False
@@ -80,7 +82,7 @@ showBoard board = top ++ content ++ top
     content = concatMap fmt rows
     fmt ts = "|" ++ (concatMap toChars ts) ++ "|\n"
 
-boardToArray :: Board -> Array (Int,Int) Tile
+boardToArray :: Board -> TileGrid
 boardToArray board = listArray ((1,1),(n,n)) (boardTiles board)
   where n = boardSize board
 
@@ -90,8 +92,6 @@ passable TavernTile   = False
 passable (MineTile _) = False
 passable FreeTile     = True
 passable (HeroTile _) = True
-
-type TileGrid = Array (Int,Int) Tile
 
 nsew = [(1,0),(-1,0),(0,1),(0,-1)]
 
@@ -119,10 +119,10 @@ distances' tiles r0 c0 = do
 distances :: TileGrid -> Int -> Int -> Array (Int,Int) Int
 distances tiles r c = ST.runSTArray $ distances' tiles r c
 
-merge :: [a] -> [a] -> [a]
-merge [] _ = []
-merge _ [] = []
-merge (x:xs) (y:ys) = x:y:merge xs ys
+interleave :: [a] -> [a] -> [a]
+interleave [] _ = []
+interleave _ [] = []
+interleave (x:xs) (y:ys) = x:y:interleave xs ys
 
 formatArray :: (e -> String) -> Array (Int,Int) e -> String
 formatArray f arr =
@@ -131,7 +131,7 @@ formatArray f arr =
        fmt = justify (n+1) . f
        n = maximum $ map (length . f) (elems arr)
   in
-  concat $ merge (map nthrow [r0..r1]) (repeat "\n")
+  concat $ interleave (map nthrow [r0..r1]) (repeat "\n")
 
 justify :: Int -> String -> String
 justify n s = spaces ++ s

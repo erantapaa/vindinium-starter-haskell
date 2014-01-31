@@ -1,0 +1,14 @@
+#!/usr/bin/env perl
+
+use FindBin '$Bin';
+
+my $TOP = $Bin;
+
+my $PACKAGE_DB = "$TOP/.cabal-sandbox/i386-osx-ghc-7.6.3-packages.conf.d";
+
+exec ("ghci", "-no-user-package-db",
+              "-package-db", $PACKAGE_DB,
+              "-i$TOP/src",
+              @ARGV)
+  or die "unable to exec ghci: $!\n";
+

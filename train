@@ -1,0 +1,19 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin '$Bin';
+use File::Slurp;
+
+my $SECRET_PATH = "$Bin/../secret";
+my $SECRET = read_file($SECRET_PATH);
+chomp($SECRET);
+
+open(STDERR, ">&STDOUT");
+sys("./dist/build/Vindinium/vindinium", "training", $SECRET, @ARGV);
+
+sub sys {
+  warn "+ @_\n";
+  system(@_);
+}
+

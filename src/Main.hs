@@ -8,8 +8,9 @@ import Bot
 
 import Data.String (fromString)
 import Data.Text (pack, unpack)
+import System.IO (hSetBuffering, stdout, BufferMode(..))
 
-data Cmd = Training Settings (Maybe Int) (Maybe Board)
+data Cmd = Training Settings (Maybe Int) (Maybe BoardId)
          | Arena Settings
          deriving (Show, Eq)
 
@@ -24,7 +25,7 @@ settings = Settings <$> (Key <$> argument (Just . pack) (metavar "KEY"))
 trainingCmd :: Parser Cmd
 trainingCmd = Training <$> settings
                        <*> optional (option (long "turns"))
-                       <*> pure Nothing
+                       <*> optional (strOption (long "map"))
 
 arenaCmd :: Parser Cmd
 arenaCmd = Arena <$> settings
@@ -46,8 +47,12 @@ runCmd c  = do
 
     putStrLn $ "Game finished: " ++ unpack (stateViewUrl s)
 
+initIO :: IO ()
+initIO = hSetBuffering stdout LineBuffering
+
 main :: IO ()
-main =
+main = do
+    initIO
     execParser opts >>= runCmd
   where
     opts = info (cmd <**> helper) idm
